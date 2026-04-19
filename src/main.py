@@ -1,22 +1,28 @@
+import sys
+from PySide6.QtWidgets import QApplication
 from simulation import TrafficSimulation
 import networkx as nx
+from ui_v1 import TrafficV1Window
 
 
-def create_city_grid_map(rows: int = 6, cols: int = 6, spacing: float = 1.0):
+def create_city_grid_map(rows: int = 6, cols: int = 6, spacing: float = 120.0):
     rows = max(4, int(rows))
     cols = max(4, int(cols))
-    spacing = max(0.2, float(spacing))
+    spacing = max(20.0, float(spacing))
 
     G = nx.MultiDiGraph()
-    G.graph["map_type"] = "city_grid"
     G.graph["rows"] = rows
     G.graph["cols"] = cols
 
+    # Noeuds avec coordonnées écran directes
     for r in range(rows + 1):
         for c in range(cols + 1):
             node_id = f"I_{r}_{c}"
-            G.add_node(node_id, x=c * spacing, y=r * spacing)
+            x = c * spacing
+            y = r * spacing
+            G.add_node(node_id, x=x, y=y)
 
+    # Arêtes bidirectionnelles
     for r in range(rows + 1):
         for c in range(cols):
             u = f"I_{r}_{c}"
@@ -40,21 +46,15 @@ def create_city_grid_map(rows: int = 6, cols: int = 6, spacing: float = 1.0):
 
 def main():
     """Entrée principale en mode headless (sans interface graphique)."""
+    app = QApplication(sys.argv)
+
     G = create_city_grid_map(rows=6, cols=6, spacing=1.0)
-    sim = TrafficSimulation(G, n_vehicles=20, seed=123)
+    sim = TrafficSimulation(G, n_vehicles=10, seed=123)
 
-    n_ticks = 300
-    for _ in range(n_ticks):
-        sim.step()
+    window = TrafficV1Window(G, sim)
+    window.show()
 
-    print("Simulation headless terminée")
-    print(f"tick={sim.tick_count}")
-    print(f"vehicles={len(sim.vehicles)}")
-    print(f"state={sim.traffic_state()}")
-    print(f"avg_speed={sim.avg_speed():.4f}")
-    print(f"avg_q={sim.avg_queue():.2f}")
-    print(f"max_q={sim.max_queue()}")
-
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
