@@ -48,8 +48,8 @@ def main():
     """Entrée principale en mode headless (sans interface graphique)."""
     app = QApplication(sys.argv)
 
-    G = create_city_grid_map(rows=6, cols=6, spacing=1.0)
-    sim = TrafficSimulation(G, n_vehicles=10, seed=123)
+    G = create_city_grid_map(rows=5, cols=5, spacing=100.0)
+    sim = TrafficSimulation(G, n_vehicles=30, seed=123)
 
     window = TrafficV1Window(G, sim)
     window.show()
